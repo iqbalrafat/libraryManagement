@@ -18,7 +18,7 @@ namespace libraryManagement.models
         [MaxLength(200,ErrorMessage ="Title length can not be greater thab 200 characters")]
         public string Title { get; set; }
         public DateTime DatePublished { get; set; }
-        public virtual ICollection<Review> reviews { get; set; }
+        public virtual ICollection<Review> Reviews { get; set; }
         public virtual ICollection<BookAuthor> BookAuthors { get; set; }
         public ICollection<BookCategory> BookCategories { get; set; }
 
