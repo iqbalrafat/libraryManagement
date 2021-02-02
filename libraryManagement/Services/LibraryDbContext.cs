@@ -32,10 +32,9 @@ namespace libraryManagement.Services
         
         protected override void OnModelCreating (ModelBuilder modelBuilder)
         {
+            //Make a relationship between Book and category. first we check one book with multiple categories then one category with multiple book
             modelBuilder.Entity<BookCategory>()
-                .HasKey(bc => new { bc.BookId, bc.CategoryId }); //bc for BookCategory we define the BookId and CategoryId
-      
-        //Make a relationship between Book and category. first we check one book with multiple categories then one category with multiple book
+                   .HasKey(bc => new { bc.BookId, bc.CategoryId }); //bc for BookCategory we define the BookId and CategoryId
             modelBuilder.Entity<BookCategory>()
                 .HasOne(b => b.Book)
                 .WithMany(bc => bc.BookCategories)
@@ -44,6 +43,48 @@ namespace libraryManagement.Services
                 .HasOne(c => c.Category)
                 .WithMany(bc => bc.BookCategories)
                 .HasForeignKey(c => c.CategoryId);
+            modelBuilder.Entity<BookCategory>()
+                .HasOne(b => b.Book)
+                .WithMany(bc => bc.BookCategories)
+                .HasForeignKey(b => b.BookId);
+            modelBuilder.Entity<BookCategory>()
+                .HasOne(c => c.Category)
+                .WithMany(bc => bc.BookCategories)
+                .HasForeignKey(c => c.CategoryId);
+            //Make a relationship between Book and author. first we check one book with multiple categories then one category with multiple book
+            modelBuilder.Entity<BookAuthor>()
+                .HasKey(ba => new { ba.BookId,ba.AuthorId });
+
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne(b => b.Book)
+                .WithMany(ba => ba.BookAuthors)  //ba stands for BookAuthor
+                .HasForeignKey(b => b.BookId);
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne(a => a.Author)
+                .WithMany(ba => ba.BookAuthors)
+                .HasForeignKey(a => a.AuthorId);
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne(b => b.Book)
+                .WithMany(ba => ba.BookAuthors)
+                .HasForeignKey(b => b.BookId);
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne(a => a.Author)
+                .WithMany(ba => ba.BookAuthors)
+                .HasForeignKey(a => a.AuthorId);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
 
