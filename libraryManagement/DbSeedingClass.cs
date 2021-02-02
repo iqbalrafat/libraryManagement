@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 
 namespace libraryManagement
 {
+    //we use this class for seed only and will not istatiate so class will be static and create the static methods too.
     public static class DbSeedingClass
     {
-        public static void SeedDataContext(this LibraryDbContext context)
+        //Since the method is an extension method so to clarify we use this. Also it will be point method so when we start the database it will
+        //look at this first and populate.
+        public static void SeedDataContext(this LibraryDbContext context) 
         {
             var booksAuthors = new List<BookAuthor>()
             {
@@ -152,7 +155,7 @@ namespace libraryManagement
                     }
                 }
             };
-
+            //now we to add all this value to database so we add into context define in static method. 
             context.BookAuthors.AddRange(booksAuthors);
             context.SaveChanges();
         }

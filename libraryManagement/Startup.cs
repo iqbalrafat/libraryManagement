@@ -41,21 +41,24 @@ namespace libraryManagement
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        //to add the seed data to database we need to add Dbcontext in this method. so first add the argument after env then call the method created in DbSeedingClass
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LibraryDbContext context) 
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            context.SeedDataContext();   //call seedDataContext method
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                //we will use mvc controller so replace endpoint.mapget with default route
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action}/{id?}"
+              );
             });
         }
     }
