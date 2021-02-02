@@ -1,6 +1,8 @@
+using libraryManagement.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,7 +33,11 @@ namespace libraryManagement
             services.AddMvc();
         //we setup the connetionStrings from the configuration property that we set and Iconfiguration interface. Now we define the strings "connectionStrings"
         //it can be anything
-            var connectionString = Configuration["connectionStrings:libraryDbConnectionStrings"];
+            var connectionString = Configuration["connectionStrings:libraryDbConnectionString"];
+
+            // To create the Database we need to inject the AddDbContext services. then run the migration from package Manager Console
+            //from Tools-NuGet Pakage Manager-Package Manger Console.
+            services.AddDbContext<LibraryDbContext>(connection => connection.UseSqlServer(connectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

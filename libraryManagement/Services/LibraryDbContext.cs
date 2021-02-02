@@ -10,7 +10,7 @@ namespace libraryManagement.Services
     public class LibraryDbContext:DbContext
     {
         //since we inherted the DbContext se we need to define a constructor.
-        public LibraryDbContext(DbContextOptions<DbContext> options)
+        public LibraryDbContext(DbContextOptions<LibraryDbContext> options)
             :base(options)
         {
             // heer we define the patern we like to create when EF run. In our case we like migration.
@@ -27,9 +27,7 @@ namespace libraryManagement.Services
         public virtual DbSet<BookCategory> BookCategories { get; set; }
 
         //onModelCreating method is part of Dbcontext, it takes n argument of type ModelBuilder which allow to specify the
-        //relationship between entities. to create a method we override it from dbcontext
-        
-        
+        //relationship between entities. to create a method we override it from dbcontext     
         protected override void OnModelCreating (ModelBuilder modelBuilder)
         {
             //Make a relationship between Book and category. first we check one book with multiple categories then one category with multiple book
@@ -71,24 +69,6 @@ namespace libraryManagement.Services
                 .HasOne(a => a.Author)
                 .WithMany(ba => ba.BookAuthors)
                 .HasForeignKey(a => a.AuthorId);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
-
-
-
-
     }
 }
