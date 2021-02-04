@@ -40,5 +40,22 @@ namespace libraryManagement.Controllers
             }
              return Ok (countriesDto);
         }
+        [HttpGet("{countryId}")]
+        [ProducesResponseType(404)]
+        [ProducesErrorResponseType(200,Type=typeof(CountryDto))]
+        public IActionResult GetCountry(int countryId)
+        {
+            var country = _countryRepository.GetCountry(countryId);
+            var countryDto = new CountryDto()
+            {
+                Name = country.Name,
+                Id = country.Id
+            };
+            return Ok(countryDto)
+        }
+
+
+
+
     }
 }
