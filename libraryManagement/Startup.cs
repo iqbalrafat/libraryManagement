@@ -31,14 +31,16 @@ namespace libraryManagement
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-        //we setup the connetionStrings from the configuration property that we set and Iconfiguration interface. Now we define the strings "connectionStrings"
-        //it can be anything
+            //we setup the connetionStrings from the configuration property that we set and Iconfiguration interface. Now we define the strings "connectionStrings"
+            //it can be anything
             var connectionString = Configuration["connectionStrings:libraryDbConnectionString"];
 
             // To create the Database we need to inject the AddDbContext services. then run the migration from package Manager Console
             //from Tools-NuGet Pakage Manager-Package Manger Console.
             services.AddDbContext<LibraryDbContext>(connection => connection.UseSqlServer(connectionString));
+            services.AddScoped<ICountryRepository, CountryRepository>();
         }
+       
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         //to add the seed data to database we need to add Dbcontext in this method. so first add the argument after env then call the method created in DbSeedingClass
