@@ -55,7 +55,7 @@ namespace libraryManagement.Controllers
             return Ok(countryDto);
         }
         //api/countries/authryId
-        [HttpGet("{countryId}")]
+        [HttpGet("authors/{authorId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
