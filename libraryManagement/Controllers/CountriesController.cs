@@ -40,9 +40,10 @@ namespace libraryManagement.Controllers
             }
              return Ok (countriesDto);
         }
+        //api/countries/countryId
         [HttpGet("{countryId}")]
         [ProducesResponseType(404)]
-        [ProducesErrorResponseType(200,Type=typeof(CountryDto))]
+        [ProducesResponseType(200,Type=typeof(CountryDto))]
         public IActionResult GetCountry(int countryId)
         {
             var country = _countryRepository.GetCountry(countryId);
@@ -51,11 +52,26 @@ namespace libraryManagement.Controllers
                 Name = country.Name,
                 Id = country.Id
             };
-            return Ok(countryDto)
+            return Ok(countryDto);
         }
-
-
-
+        //api/countries/authryId
+        [HttpGet("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(CountryDto))]
+        public IActionResult GetCountryOfAnAuthor(int authorId)
+        {
+            var country = _countryRepository.GetCountryOfAnAuthor(authorId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var countryDto = new CountryDto()
+            {
+                Id = country.Id,
+                Name = country.Name
+            };
+            return Ok(countryDto);
+           
+        }
 
     }
 }
