@@ -14,5 +14,6 @@ namespace libraryManagement.Services
         Country GetCountryOfAnAuthor(int authorId);
         ICollection<Author> GetAuthorsFromACountry(int countryId);
         bool CountryExist(int countryId);
+        
     }
 }

@@ -11,8 +11,8 @@ namespace libraryManagement.Services
         ICollection<Category> GetCategories();
         Category GetCategory(int categoryId);
 
-        Category GetCategoryOfABook(int bookId);
-        ICollection<Book> GetBooksForACategory(int categoryId);
+        ICollection<Category> GetAllCategoriesForABook(int BookId);
+        ICollection<Book> GetAllBooksForACategory(int categoryId);
 
         bool CategoryExists(int CategoryId);
 
