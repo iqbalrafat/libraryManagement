@@ -26,18 +26,24 @@ namespace libraryManagement.Controllers
 
             return Ok(categories);
         }
-        //api/categories/id
+        //api/categories/{categoryId
         [HttpGet("{categoryId}")]
         [ProducesResponseType(400)]
         [ProducesResponseType(200)]
         public IActionResult GetCategory(int categoryId)
         {
             var category = _categoryRepository.GetCategories().Where(c => c.Id == categoryId).FirstOrDefault();
-
-
-            return Ok (category);
+            return Ok(category);
         }
-
+        //api/categories/books/{bookId}
+        [HttpGet("books /{bookId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public IActionResult GetAllCategoriesForABook(int BookId)
+        {
+            var categoriesForBook = _categoryRepository.GetAllCategoriesForABook(BookId).ToList();
+            return Ok(categoriesForBook);
+        }
 
     }
 }
