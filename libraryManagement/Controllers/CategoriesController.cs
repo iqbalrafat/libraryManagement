@@ -82,22 +82,25 @@ namespace libraryManagement.Controllers
         [HttpGet("{categoryId}/books")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<CategoryDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
         public IActionResult GetAllBooksForACategory(int categoryId)
         {
             var booksForCategory = _categoryRepository.GetAllBooksForACategory(categoryId).ToList();
             if (!ModelState.IsValid)
                 BadRequest(ModelState);
-            var categoriesDto = new List<CategoryDto>();
+            var booksDto = new List<BookDto>();
             foreach (var books in booksForCategory)
             {
-                categoriesDto.Add(new CategoryDto
+                booksDto.Add(new BookDto
                 {
                     Id = books.Id,
-                    Name = books.Title
+                    Title = books.Title,
+                    Isbn = books.Isbn,
+                    DatePublished = books.DatePublished
+
                 });
             }
-            return Ok(categoriesDto);
+            return Ok(booksDto);
         }
     }
 }
