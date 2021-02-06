@@ -10,8 +10,8 @@ namespace libraryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CountriesController: Controller
-        
+    public class CountriesController : Controller
+
     {
         private ICountryRepository _countryRepository;
         public CountriesController(ICountryRepository countryRepository)
@@ -21,7 +21,7 @@ namespace libraryManagement.Controllers
         //api/countries
         [HttpGet]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200,Type=typeof(IEnumerable<CountryDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CountryDto>))]
         public IActionResult GetCountries()
         {
             var countries = _countryRepository.GetCountries().ToList();
@@ -30,7 +30,7 @@ namespace libraryManagement.Controllers
             //the countries list will return both country name and null value for author
             //it is therefore better to use Dto to get the specific field in this case Id and country name
             var countriesDto = new List<CountryDto>();
-            foreach(var country in countries)
+            foreach (var country in countries)
             {
                 countriesDto.Add(new CountryDto
                 {
@@ -38,12 +38,12 @@ namespace libraryManagement.Controllers
                     Name = country.Name
                 });
             }
-             return Ok (countriesDto);
+            return Ok(countriesDto);
         }
         //api/countries/countryId
         [HttpGet("{countryId}")]
         [ProducesResponseType(404)]
-        [ProducesResponseType(200,Type=typeof(CountryDto))]
+        [ProducesResponseType(200, Type = typeof(CountryDto))]
         public IActionResult GetCountry(int countryId)
         {
             var country = _countryRepository.GetCountry(countryId);
@@ -70,8 +70,34 @@ namespace libraryManagement.Controllers
                 Name = country.Name
             };
             return Ok(countryDto);
-           
-        }
 
+        }
+        [HttpGet("{countryId}/authors")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200,Type =typeof(IEnumerable<AuthorDto>))]
+        public IActionResult GetAuthorsFromACountry(int countryId)
+           
+        {
+            if (!_countryRepository.CountryExist(countryId))
+                return NotFound();
+                var authors = _countryRepository.GetAuthorsFromACountry(countryId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            
+            var authorDto = new List<AuthorDto>();
+            foreach(var author in authors)
+            {
+                authorDto.Add(new AuthorDto()
+                {
+                    id = author.Id,
+                    FirstName = author.FirstName,
+                    LastName = author.LastName
+                });
+            }
+
+           return Ok(authorDto);
+        }
     }
 }
