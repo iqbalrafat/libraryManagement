@@ -17,7 +17,7 @@ namespace libraryManagement.Services
         ICollection <Review> GetReviewesByReviewer(int reviewerId);
         
         //To Get Reviewer for a specific Review
-        Reviewer GetReviewerOfAReview(int ReviewId);
+        Reviewer GetReviewerOfAReview(int reviewId);
         
         //Check the existence of a Reviewer
         bool ReviewerExists(int reviewrId);

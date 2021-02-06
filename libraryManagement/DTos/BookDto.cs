@@ -9,6 +9,8 @@ namespace libraryManagement.DTos
     {
         public int Id { get; set; }
         public string Title { get; set; }
+        public DateTime? DatePublished { get; set; }
+        public string Isbn { get; set; }
 
     }
 }
