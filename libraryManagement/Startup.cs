@@ -39,6 +39,7 @@ namespace libraryManagement
             //from Tools-NuGet Pakage Manager-Package Manger Console.
             services.AddDbContext<LibraryDbContext>(connection => connection.UseSqlServer(connectionString));
             services.AddScoped<ICountryRepository, CountryRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
         }
        
 
