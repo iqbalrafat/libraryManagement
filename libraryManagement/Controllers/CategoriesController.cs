@@ -1,4 +1,5 @@
-﻿using libraryManagement.Services;
+﻿using libraryManagement.DTos;
+using libraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -19,21 +20,42 @@ namespace libraryManagement.Controllers
         //api/categories
         [HttpGet]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(200,Type =typeof(IEnumerable<CategoryDto>))]
         public IActionResult GetCategories()
         {
             var categories = _categoryRepository.GetCategories().ToList();
 
-            return Ok(categories);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var categoriesDto = new List<CategoryDto>();
+            foreach (var category in categories)
+            {
+                categoriesDto.Add(new CategoryDto
+                {
+                    Id = category.Id,
+                    Name = category.Name
+                });
+            }
+            return Ok(categoriesDto);
         }
         //api/categories/{categoryId
         [HttpGet("{categoryId}")]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(CountryDto))]
         public IActionResult GetCategory(int categoryId)
         {
-            var category = _categoryRepository.GetCategories().Where(c => c.Id == categoryId).FirstOrDefault();
-            return Ok(category);
+            if (!_categoryRepository.CategoryExists(categoryId))
+                return NotFound();
+            var category = _categoryRepository.GetCategory(categoryId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var categoryDto = new CategoryDto()  // creating object CategoryDto, Only value that we need
+            {
+                Id = category.Id,
+                Name = category.Name
+            };             
+            return Ok(categoryDto);
         }
         //api/categories/books/{bookId}
         [HttpGet("books/{bookId}")]
@@ -53,7 +75,5 @@ namespace libraryManagement.Controllers
             var booksForCategory = _categoryRepository.GetAllBooksForACategory(categoryId).ToList();
             return Ok(booksForCategory);
         }
-
-
     }
 }
