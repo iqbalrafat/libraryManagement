@@ -16,14 +16,28 @@ namespace libraryManagement.Controllers
         {
             _categoryRepository = categoryRepository;
         }
+        //api/categories
         [HttpGet]
         [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
         public IActionResult GetCategories()
         {
             var categories = _categoryRepository.GetCategories().ToList();
 
             return Ok(categories);
         }
+        //api/categories/id
+        [HttpGet("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public IActionResult GetCategory(int categoryId)
+        {
+            var category = _categoryRepository.GetCategories().Where(c => c.Id == categoryId).FirstOrDefault();
+
+
+            return Ok (category);
+        }
+
 
     }
 }
