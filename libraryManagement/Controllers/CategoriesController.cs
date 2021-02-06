@@ -60,20 +60,44 @@ namespace libraryManagement.Controllers
         //api/categories/books/{bookId}
         [HttpGet("books/{bookId}")]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CategoryDto>))]
         public IActionResult GetAllCategoriesForABook(int BookId)
         {
             var categoriesForBook = _categoryRepository.GetAllCategoriesForABook(BookId).ToList();
-            return Ok(categoriesForBook);
+            if (!ModelState.IsValid)
+                BadRequest(ModelState);
+            var categoriesDto = new List<CategoryDto>();
+            foreach ( var category in categoriesForBook)
+            {
+                categoriesDto.Add(new CategoryDto
+                {
+                    Id = category.Id,
+                    Name = category.Name
+                });
+            }
+            return Ok(categoriesDto);
         }
         //api/categories/{categoryId}/books
         [HttpGet("{categoryId}/books")]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<CategoryDto>))]
         public IActionResult GetAllBooksForACategory(int categoryId)
         {
             var booksForCategory = _categoryRepository.GetAllBooksForACategory(categoryId).ToList();
-            return Ok(booksForCategory);
+            if (!ModelState.IsValid)
+                BadRequest(ModelState);
+            var categoriesDto = new List<CategoryDto>();
+            foreach (var books in booksForCategory)
+            {
+                categoriesDto.Add(new CategoryDto
+                {
+                    Id = books.Id,
+                    Name = books.Title
+                });
+            }
+            return Ok(categoriesDto);
         }
     }
 }
