@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace libraryManagement.Services
 {
-    interface IReviewerRepository
+    public interface IReviewerRepository
     {
         //to get the list of all Reviewers
         ICollection<Reviewer> GetReviewers();

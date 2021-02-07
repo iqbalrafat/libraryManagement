@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace libraryManagement.Services
 {
-    interface IBookRepository
+    public interface IBookRepository
     {
         ICollection<Book> GetBooks();
         Book GetBookById (int bookId);

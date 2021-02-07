@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace libraryManagement.Services
 {
-    interface IAuthorRepository
+    public interface IAuthorRepository
     {
         ICollection<Author> GetAuthors();
         Author GetAuthor(int authorId);

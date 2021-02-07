@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace libraryManagement.Services
 {
-    interface IReviewRepository
+    public interface IReviewRepository
     {//to get the list of all Reviewes
         ICollection<Review> GetReviews();
         //to get the specific Review
