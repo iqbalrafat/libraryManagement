@@ -20,6 +20,6 @@ namespace libraryManagement.Services
         Reviewer GetReviewerOfAReview(int reviewId);
         
         //Check the existence of a Reviewer
-        bool ReviewerExists(int reviewrId);
+        bool ReviewerExists(int reviewerId);
     }
 }
