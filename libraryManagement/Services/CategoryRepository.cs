@@ -36,5 +36,11 @@ namespace libraryManagement.Services
         {
             return _categoryContext.BookCategories.Where(b => b.BookId == BookId).Select(c => c.Category).ToList();
         }
+
+        public bool IsDuplicateCategoryName(int CategoryId, string CategoryName)
+        {
+            var Category = _categoryContext.Categories.Where(c => c.Name.Trim().ToUpper() == CategoryName.Trim().ToUpper() && c.Id == CategoryId).FirstOrDefault();
+            return Category == null ? false : true;
+        }
     }
 }

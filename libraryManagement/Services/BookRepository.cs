@@ -49,7 +49,7 @@ namespace libraryManagement.Services
 
         public bool IsDuplicateIsbn(int bookId, string bookIsbn)
         {
-            var book= _bookContext.Books.Where(b => b.Isbn.Trim().ToUpper() == bookIsbn.Trim().ToUpper() && b.Id == bookId);
+            var book= _bookContext.Books.Where(b => b.Isbn.Trim().ToUpper() == bookIsbn.Trim().ToUpper() && b.Id == bookId).FirstOrDefault();
             return book == null ? false : true;
         }
     }

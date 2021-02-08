@@ -15,6 +15,7 @@ namespace libraryManagement.Services
         ICollection<Book> GetAllBooksForACategory(int categoryId);
 
         bool CategoryExists(int CategoryId);
+        bool IsDuplicateCategoryName(int CategoryId, string CategoryName);
 
     }
 }
