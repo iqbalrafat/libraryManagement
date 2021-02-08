@@ -12,9 +12,11 @@ namespace libraryManagement.Controllers
     public class ReviewsController: Controller
     {
         private IReviewRepository _reviewRepository;
-        public ReviewsController(IReviewRepository reviewRepository)
+        private IBookRepository _bookRepository;
+        public ReviewsController(IReviewRepository reviewRepository,IBookRepository bookRepository)
         {
             _reviewRepository = reviewRepository;
+            _bookRepository = bookRepository;
         }
         //api/reviews
         [HttpGet]
@@ -65,7 +67,7 @@ namespace libraryManagement.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
         public IActionResult GetReviewesOfABook(int bookId)
         {
-            if (!_reviewRepository.ReviewExists(bookId))
+            if (!_bookRepository.BookExistsById(bookId))
                 return NotFound();
             var reviews = _reviewRepository.GetReviewesOfABook(bookId);
             if (!ModelState.IsValid)
@@ -83,5 +85,27 @@ namespace libraryManagement.Controllers
             }
             return Ok(reviewsDto);
         }
+        //api/reviews/{reviewId/book
+        [HttpGet("{reviewId}/book")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
+        public IActionResult GetBookOfAReview(int reviewId)
+        {
+            if (!_reviewRepository.ReviewExists(reviewId))
+                return NotFound();
+            var book = _reviewRepository.GetBookOfAReview(reviewId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var booksDto = new BookDto()
+            {
+                Id = book.Id,
+                Title = book.Title,
+                DatePublished=book.DatePublished,
+                Isbn=book.Isbn
+            };
+            return Ok(booksDto);
+        }
+
     }
 }
