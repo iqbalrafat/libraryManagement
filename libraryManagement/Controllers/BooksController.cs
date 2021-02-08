@@ -73,10 +73,8 @@ namespace libraryManagement.Controllers
             var rating = _bookRepository.GetBookRating(bookId);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-           return Ok(rating);
+            return Ok(rating);
         }
-
-
     }
 }
 
