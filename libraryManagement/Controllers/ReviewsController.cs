@@ -58,5 +58,30 @@ namespace libraryManagement.Controllers
             };
             return Ok(reviewDto);
         }
+        //api/reviews/Books/{bookId}
+        [HttpGet("Books/{bookId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
+        public IActionResult GetReviewesOfABook(int bookId)
+        {
+            if (!_reviewRepository.ReviewExists(bookId))
+                return NotFound();
+            var reviews = _reviewRepository.GetReviewesOfABook(bookId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var reviewsDto = new List<ReviewDto>();
+            foreach(var review in reviews)
+            {
+                reviewsDto.Add(new ReviewDto
+                {
+                    Id = review.Id,
+                    Headline = review.Headline,
+                    ReviewText = review.ReviewText,
+                    Rating = review.Rating
+                });
+            }
+            return Ok(reviewsDto);
+        }
     }
 }
