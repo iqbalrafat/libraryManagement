@@ -84,11 +84,31 @@ namespace libraryManagement.Controllers
             }
             return Ok(authorsDto);
         }
-
-
-
-
-
+        //api/Authors/{authorId}/books
+        [HttpGet("{authorId}/books")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<BookDto>))]
+        public IActionResult GetBooksByAuthor(int authorId)
+        {
+            if (!_authorRepository.AuthorExists(authorId))
+                return NotFound();
+            var books = _authorRepository.GetBooksByAuthor(authorId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var booksDto = new List<BookDto>();
+            foreach (var book in books)
+            {
+                booksDto.Add(new BookDto
+                {
+                    Id = book.Id,
+                    Title = book.Title,
+                    Isbn = book.Isbn,
+                    DatePublished=book.DatePublished
+                });
+            }
+            return Ok(booksDto);
+        }
 
      }
 }
