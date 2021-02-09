@@ -20,12 +20,15 @@ namespace libraryManagement.Services
 
         public bool CreateCountry(Country country)
         {
-            throw new NotImplementedException();
+            //to create country we use Add method and then return Save() method to confirm the creation
+            _countryContext.Add(country);
+            return Save();
         }
 
         public bool DeleteCountry(Country country)
         {
-            throw new NotImplementedException();
+            _countryContext.Remove(country);
+            return Save();
         }
 
         public ICollection<Author> GetAuthorsFromACountry(int countryId)
