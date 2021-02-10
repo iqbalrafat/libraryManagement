@@ -42,7 +42,7 @@ namespace libraryManagement.Controllers
             return Ok(countriesDto);
         }
         //api/countries/countryId
-        [HttpGet("{countryId}", Name ="GetCountry")]
+        [HttpGet("{countryId}", Name = "GetCountry")]
         [ProducesResponseType(404)]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
         public IActionResult GetCountry(int countryId)
@@ -77,19 +77,19 @@ namespace libraryManagement.Controllers
         [HttpGet("{countryId}/authors")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(200,Type =typeof(IEnumerable<AuthorDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
         public IActionResult GetAuthorsFromACountry(int countryId)
-           
+
         {
             if (!_countryRepository.CountryExist(countryId))
                 return NotFound();
-                var authors = _countryRepository.GetAuthorsFromACountry(countryId);
+            var authors = _countryRepository.GetAuthorsFromACountry(countryId);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            
-            
+
+
             var authorDto = new List<AuthorDto>();
-            foreach(var author in authors)
+            foreach (var author in authors)
             {
                 authorDto.Add(new AuthorDto()
                 {
@@ -99,17 +99,17 @@ namespace libraryManagement.Controllers
                 });
             }
 
-           return Ok(authorDto);
+            return Ok(authorDto);
         }
         //api/countries
         [HttpPost]
-        [ProducesResponseType(200,Type =typeof(Country))]
+        [ProducesResponseType(200, Type = typeof(Country))]
         [ProducesResponseType(422)]
         [ProducesResponseType(500)]
         [ProducesResponseType(400)]
 
 
-        public IActionResult CreateCountry([FromBody]Country countryToCreate)
+        public IActionResult CreateCountry([FromBody] Country countryToCreate)
         {
             if (countryToCreate == null)
                 return BadRequest(ModelState);
@@ -121,12 +121,49 @@ namespace libraryManagement.Controllers
             }
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if(!_countryRepository.CreateCountry(countryToCreate))
+            if (!_countryRepository.CreateCountry(countryToCreate))
             {
                 ModelState.AddModelError("", $"Something went wrong saving {countryToCreate.Name}");
                 return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetCountry", new { countryId = countryToCreate.Id },countryToCreate);
+            return CreatedAtRoute("GetCountry", new { countryId = countryToCreate.Id }, countryToCreate);
         }
+        //api/countries/{countryId}
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(200,Type =typeof(Country))]
+        public IActionResult UpdateCountry(int countryId,[FromBody]Country updatedCountryInfo)
+        {
+            //Validation
+            //chcek info from body is not null
+            if (updatedCountryInfo == null)
+                return BadRequest(ModelState);
+            
+            //check country id from body exist in database
+            if (countryId != updatedCountryInfo.Id)
+                return NotFound();
+
+            //check the country name is exist in database then it will be error
+
+            if(_countryRepository.IsDuplicateCountryName(countryId,updatedCountryInfo.Name))
+            {
+                ModelState.AddModelError("", $"Country {updatedCountryInfo.Name} already exists");
+                return StatusCode(422, ModelState);
+            }
+            //check if model exist
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            //check if item is updated or not. If not then through error code 500
+            if(_countryRepository.UpdateCountry(updatedCountryInfo))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating {updatedCountryInfo.Name}");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
     }
 }
