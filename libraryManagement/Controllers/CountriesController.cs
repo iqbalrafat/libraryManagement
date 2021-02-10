@@ -133,7 +133,7 @@ namespace libraryManagement.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [ProducesResponseType(200,Type =typeof(Country))]
+        [ProducesResponseType(204)]
         public IActionResult UpdateCountry(int countryId,[FromBody]Country updatedCountryInfo)
         {
             //Validation
@@ -161,9 +161,42 @@ namespace libraryManagement.Controllers
                 ModelState.AddModelError("", $"Something went wrong updating {updatedCountryInfo.Name}");
                 return StatusCode(500, ModelState);
             }
-
             return NoContent();
         }
+        //api/countries/{countryId}
+        [HttpDelete("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
+        public IActionResult DeleteCountry(int countryId)
+        {
+            //Validation
+            //check country exist in database
+            if (_countryRepository.CountryExist(countryId))
+                return NotFound();
+            var countryToDelete = _countryRepository.GetCountry(countryId);
 
-    }
+            //since Author is foreighn key and has many many relationship with country . We need to check if
+            //author in the requested country by checking the countryId
+
+
+            if (_countryRepository.GetAuthorsFromACountry(countryId).Count > 0)
+            {
+                ModelState.AddModelError("", $"Country {countryToDelete.Name}" + "Can not deleted it is used by at least one Authors");
+                return StatusCode(409, ModelState);
+            }
+            //check if model exist
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            //check if item is Deleted or not. If not then through error code 500
+            if (_countryRepository.DeleteCountry(countryToDelete))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating {countryToDelete.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+            }
+
+        }
 }
