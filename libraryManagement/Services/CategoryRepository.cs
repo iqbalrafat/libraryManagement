@@ -42,5 +42,29 @@ namespace libraryManagement.Services
             var Category = _categoryContext.Categories.Where(c => c.Name.Trim().ToUpper() == CategoryName.Trim().ToUpper() && c.Id == CategoryId).FirstOrDefault();
             return Category == null ? false : true;
         }
+
+        public bool CreateCategory(Category category)
+        {
+            _categoryContext.Add(category);
+            return Save();
+        }
+
+        public bool UpdateCategory(Category category)
+        {
+            _categoryContext.Update(category);
+            return Save();
+        }
+
+        public bool DleteCategory(Category category)
+        {
+             _categoryContext.Remove(category);
+            return Save();
+        }
+
+        public bool Save()
+        {
+            var saved = _categoryContext.SaveChanges();
+            return saved >= 0 ? true : false;
+        }
     }
 }

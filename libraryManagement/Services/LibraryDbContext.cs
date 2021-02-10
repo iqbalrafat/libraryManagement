@@ -26,6 +26,7 @@ namespace libraryManagement.Services
         public virtual DbSet<BookAuthor> BookAuthors { get; set; }
         public virtual DbSet<BookCategory> BookCategories { get; set; }
         public object Country { get; internal set; }
+        public object CreateCategory { get; internal set; }
 
         //onModelCreating method is part of Dbcontext, it takes n argument of type ModelBuilder which allow to specify the
         //relationship between entities. to create a method we override it from dbcontext     
