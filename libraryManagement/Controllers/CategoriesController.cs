@@ -103,6 +103,7 @@ namespace libraryManagement.Controllers
             }
             return Ok(booksDto);
         }
+        //POST API For Category
         //api/categories
         [HttpPost]
         [ProducesResponseType(200)]
@@ -114,6 +115,7 @@ namespace libraryManagement.Controllers
             //check if the categoryToCreate is exist on body. If it is null then it is a bad request
             if (categoryToCreate == null)
                 return BadRequest(ModelState);
+           
             //If body has category then check is it already exist or not. If it returns not null mean it exist then
             //through custom error that category already exist.
             var category = _categoryRepository.GetCategories().Where(c => c.Name.Trim().ToUpper() == categoryToCreate.Name.Trim().ToUpper()).FirstOrDefault();
@@ -122,6 +124,7 @@ namespace libraryManagement.Controllers
                 ModelState.AddModelError("", $"Category {categoryToCreate.Name} already exists");
                 return StatusCode(422, ModelState);
             }
+          
             //Check if the state valid or not. If it is not valid then through error. Bad request.
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -135,8 +138,37 @@ namespace libraryManagement.Controllers
             //if category created  then return the new created category.
             return CreatedAtRoute("GetCategory", new { categoryId = categoryToCreate.Id }, categoryToCreate);
         }
+        //api/categories/{categoryId}
+        [HttpPut("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]             
+        public IActionResult UpdateCategory(int categoryId,[FromBody] Category categoryToUpdate)
+        {
+            if (categoryToUpdate == null)
+                return BadRequest(ModelState);
+            //check category id from body exist in database
+            if (categoryId != categoryToUpdate.Id)
+                return NotFound();
+            //check the category name is exist in database then it will be error
 
-
-
+            if (_categoryRepository.IsDuplicateCategoryName(categoryId, categoryToUpdate.Name))
+            {
+                ModelState.AddModelError("", $"Category {categoryToUpdate.Name} already exists");
+                return StatusCode(422, ModelState);
+            }
+            //check if model exist
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            //check if item is updated or not. If not then through error code 500
+            if (_categoryRepository.UpdateCategory(categoryToUpdate))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating {categoryToUpdate.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();                     
+        }               
+           
     }
 }
