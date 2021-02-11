@@ -106,9 +106,10 @@ namespace libraryManagement.Controllers
         //POST API For Category
         //api/categories
         [HttpPost]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(201, Type =typeof(Category))]
         [ProducesResponseType(400)]
         [ProducesResponseType (422)]
+        [ProducesResponseType(500)]
         public IActionResult CreateCategory([FromBody] Category categoryToCreate)
         {
             //Validation
@@ -128,6 +129,7 @@ namespace libraryManagement.Controllers
             //Check if the state valid or not. If it is not valid then through error. Bad request.
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            
             //last check usethe CreateCategory method and check if category created in DB or not. If not then through
             //custom status code 500 that system has some issue.
             if (!_categoryRepository.CreateCategory(categoryToCreate))
@@ -168,7 +170,44 @@ namespace libraryManagement.Controllers
                 return StatusCode(500, ModelState);
             }
             return NoContent();                     
-        }               
-           
-    }
+        }
+        //api/countries/{categoryId}
+        [HttpDelete("{categoryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
+        public IActionResult DeleteCategory(int categoryId)
+        {
+            //Validation
+            //check category exist in database
+            if (_categoryRepository.CategoryExists(categoryId))
+                return NotFound();
+            var categoryToDelete = _categoryRepository.GetCategory(categoryId);
+
+            //since Author is foreighn key and has many many relationship with country . We need to check if
+            //author in the requested country by checking the countryId
+
+
+            if (_categoryRepository.GetAllBooksForACategory(categoryId).Count > 0)
+            {
+                ModelState.AddModelError("", $"Category {categoryToDelete.Name}" + "Can not deleted it is used by at least one Authors");
+                return StatusCode(409, ModelState);
+            }
+            //check if model exist
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            //check if item is Deleted or not. If not then through error code 500
+            if (_categoryRepository.DeleteCategory(categoryToDelete))
+            {
+                ModelState.AddModelError("", $"Something went wrong updating {categoryToDelete.Name}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
+
+
+
+        }
 }
