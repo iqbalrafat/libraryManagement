@@ -18,7 +18,7 @@ namespace libraryManagement.Services
         bool IsDuplicateCategoryName(int CategoryId, string CategoryName);
         bool CreateCategory(Category category);
         bool UpdateCategory(Category category);
-        bool DleteCategory(Category category);
+        bool DeleteCategory(Category category);
         bool Save();
 
     }

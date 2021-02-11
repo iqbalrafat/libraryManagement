@@ -55,7 +55,7 @@ namespace libraryManagement.Services
             return Save();
         }
 
-        public bool DleteCategory(Category category)
+        public bool DeleteCategory(Category category)
         {
              _categoryContext.Remove(category);
             return Save();
