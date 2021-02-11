@@ -1,4 +1,5 @@
 ﻿using libraryManagement.DTos;
+using libraryManagement.models;
 using libraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,10 +14,12 @@ namespace libraryManagement.Controllers
     {
         private IReviewRepository _reviewRepository;
         private IBookRepository _bookRepository;
-        public ReviewsController(IReviewRepository reviewRepository,IBookRepository bookRepository)
+        private IReviewerRepository _reviewerRepository;
+        public ReviewsController(IReviewRepository reviewRepository,IBookRepository bookRepository, IReviewerRepository reviewerRepository)
         {
             _reviewRepository = reviewRepository;
             _bookRepository = bookRepository;
+            _reviewerRepository = reviewerRepository;
         }
         //api/reviews
         [HttpGet]
@@ -40,7 +43,7 @@ namespace libraryManagement.Controllers
             return Ok(reviewsDto);
         }
         //api/reviews/{reviewId}
-        [HttpGet("{reviewId}")]
+        [HttpGet("{reviewId}",Name="GetReview")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200,Type =typeof(ReviewDto))]
@@ -106,6 +109,41 @@ namespace libraryManagement.Controllers
             };
             return Ok(booksDto);
         }
+        //api/reviews
+        [HttpPost]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(201, Type = typeof(Review))]
+
+        public IActionResult CreateReview([FromBody] Review reviewToCreate)
+        {
+            if (reviewToCreate == null)
+                BadRequest(ModelState);
+            if (!_reviewerRepository.ReviewerExists(reviewToCreate.Reviewer.Id))
+                ModelState.AddModelError("", "Reviewer Does not exist!");
+            if (!_bookRepository.BookExistsById(reviewToCreate.Book.Id))
+                ModelState.AddModelError("", "Book Does not exist!");
+            if (!ModelState.IsValid)
+                return StatusCode(404,ModelState);
+            //creating reviewToCreate Object
+            reviewToCreate.Book = _bookRepository.GetBookById(reviewToCreate.Book.Id);
+            reviewToCreate.Reviewer = _reviewerRepository.GetReviewer(reviewToCreate.Reviewer.Id);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if(!_reviewRepository.CreateReview(reviewToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving");
+                return StatusCode(500, ModelState);
+            }
+
+
+            return CreatedAtRoute("GetReview", new { reviewId = reviewToCreate.Id }, reviewToCreate);
+
+        }
+
+
 
     }
 }
