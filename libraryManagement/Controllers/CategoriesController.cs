@@ -1,4 +1,5 @@
 ﻿using libraryManagement.DTos;
+using libraryManagement.models;
 using libraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -102,5 +103,40 @@ namespace libraryManagement.Controllers
             }
             return Ok(booksDto);
         }
+        //api/categories
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType (422)]
+        public IActionResult CreateCategory([FromBody] Category categoryToCreate)
+        {
+            //Validation
+            //check if the categoryToCreate is exist on body. If it is null then it is a bad request
+            if (categoryToCreate == null)
+                return BadRequest(ModelState);
+            //If body has category then check is it already exist or not. If it returns not null mean it exist then
+            //through custom error that category already exist.
+            var category = _categoryRepository.GetCategories().Where(c => c.Name.Trim().ToUpper() == categoryToCreate.Name.Trim().ToUpper()).FirstOrDefault();
+            if (category != null)
+            {
+                ModelState.AddModelError("", $"Category {categoryToCreate.Name} already exists");
+                return StatusCode(422, ModelState);
+            }
+            //Check if the state valid or not. If it is not valid then through error. Bad request.
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            //last check usethe CreateCategory method and check if category created in DB or not. If not then through
+            //custom status code 500 that system has some issue.
+            if (!_categoryRepository.CreateCategory(categoryToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving {categoryToCreate.Name}");
+                return StatusCode(500, ModelState);
+            }
+            //if category created  then return the new created category.
+            return CreatedAtRoute("GetCategory", new { categoryId = categoryToCreate.Id }, categoryToCreate);
+        }
+
+
+
     }
 }
