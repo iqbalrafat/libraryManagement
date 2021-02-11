@@ -20,5 +20,11 @@ namespace libraryManagement.Services
 
         //Check the existence of a Review
         bool ReviewExists(int reviewId);
+        //CRUD Operations
+        bool CreateReview(Review review);
+        bool UpdateReview(Review review);
+        bool DeleteReview(Review review);
+        bool Save();
+
     }
 }
