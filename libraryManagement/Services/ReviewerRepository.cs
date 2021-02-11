@@ -13,6 +13,19 @@ namespace libraryManagement.Services
         {
             _ReviewerContext = ReviewerContext;
         }
+
+        public bool CreateReviewer(Reviewer reviewer)
+        {
+            _ReviewerContext.Add(reviewer);
+            return Save();
+        }
+
+        public bool DeleteReviewer(Reviewer reviewer)
+        {
+               _ReviewerContext.Remove(reviewer);
+            return Save();
+        }
+
         public Reviewer GetReviewer(int reviewerId)
         {
             return _ReviewerContext.Reviewers.Where(r => r.Id == reviewerId).FirstOrDefault();
@@ -37,6 +50,18 @@ namespace libraryManagement.Services
         public bool ReviewerExists(int reviewerId)
         {
             return _ReviewerContext.Reviewers.Any(r=>r.Id==reviewerId);
+        }
+
+        public bool Save()
+        {
+            var saved = _ReviewerContext.SaveChanges();
+            return saved > 0 ? true : false;
+        }
+
+        public bool UpdateReviewer(Reviewer reviewer)
+        {
+            _ReviewerContext.Update(reviewer);
+            return Save();
         }
     }
 }
