@@ -1,4 +1,5 @@
 ﻿using libraryManagement.DTos;
+using libraryManagement.models;
 using libraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -41,7 +42,7 @@ namespace libraryManagement.Controllers
                return Ok(ReviewersDto);
         }
         //api/Reviewers/{ReviewerId}
-        [HttpGet("{ReviewerId}")]
+        [HttpGet("{ReviewerId}",Name ="GetReviewer")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200,Type=typeof(ReviewerDto))]
@@ -105,5 +106,35 @@ namespace libraryManagement.Controllers
             };
             return Ok(reviewerDto);
         }
+        //CRUD Operation Method
+        //api/reviewers
+        [HttpPost]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(201,Type=typeof(Reviewer))]
+
+        public IActionResult CreateReviewer([FromBody] Reviewer reviewerToCreate)
+        {
+            if (reviewerToCreate == null)
+                return BadRequest(ModelState);
+
+            var reviewer = _reviewerRepository.GetReviewers().Where(c => c.FirstName.Trim().ToUpper() == reviewerToCreate.FirstName.Trim().ToUpper()).FirstOrDefault();
+            if(reviewer!=null)
+            {
+                ModelState.AddModelError("", $"Country {reviewerToCreate.FirstName} already exists");
+                return StatusCode(422, ModelState);
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if(!_reviewerRepository.CreateReviewer(reviewerToCreate))
+            {
+                ModelState.AddModelError("", $"Something went wrong saving"+
+                    $"{reviewerToCreate.FirstName}{reviewerToCreate.LastName}");
+                    return StatusCode(500, ModelState);
+            }
+            return CreatedAtRoute("GetReviewer",new { reviewerId = reviewerToCreate.Id },reviewerToCreate);
+        }
+
+
     }
 }
