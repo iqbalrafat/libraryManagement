@@ -115,7 +115,6 @@ namespace libraryManagement.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
         [ProducesResponseType(201, Type = typeof(Review))]
-
         public IActionResult CreateReview([FromBody] Review reviewToCreate)
         {
             if (reviewToCreate == null)
@@ -137,13 +136,46 @@ namespace libraryManagement.Controllers
                 ModelState.AddModelError("", $"Something went wrong saving");
                 return StatusCode(500, ModelState);
             }
-
-
             return CreatedAtRoute("GetReview", new { reviewId = reviewToCreate.Id }, reviewToCreate);
-
         }
-
-
-
+        //api/reviews/{reviewId}
+        [HttpPut("{reviewId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
+        public IActionResult UpdateReview(int reviewId,[FromBody]Review reviewToUpdate)
+        {
+            if (reviewToUpdate == null)
+                return BadRequest(ModelState);
+            //Check the Review that need to update has same reviewID that is come via Body. If not then 
+            //through error
+            if (reviewId != reviewToUpdate.Id)
+                return BadRequest(ModelState);
+          
+            //Chcek the review exist or not.
+            if (!_reviewRepository.ReviewExists(reviewId))
+                ModelState.AddModelError("", "Review does not exist");                
+            //Check the reviewer exist or not
+            if(!_reviewerRepository.ReviewerExists(reviewToUpdate.Reviewer.Id))
+                ModelState.AddModelError("", "Reviewer does not exist");
+            //check the book exist or not
+            if(!_bookRepository.BookExistsById(reviewToUpdate.Book.Id))
+                ModelState.AddModelError("", "Book does not exist");
+            if (!ModelState.IsValid)
+                return StatusCode(404, ModelState);
+           
+            //creating the reviewToUpdate object by adding book and reviewer 
+            reviewToUpdate.Book = _bookRepository.GetBookById(reviewToUpdate.Book.Id);
+            reviewToUpdate.Reviewer = _reviewerRepository.GetReviewer(reviewToUpdate.Reviewer.Id);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if (!_reviewRepository.UpdateReview(reviewToUpdate))
+            {
+                ModelState.AddModelError("", "something wrong");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
     }
 }
