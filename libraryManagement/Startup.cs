@@ -28,9 +28,11 @@ namespace libraryManagement
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        //To ignore reference looping we installed NewtonSoftJson package.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc()
+                    .AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             //we setup the connetionStrings from the configuration property that we set and Iconfiguration interface. Now we define the strings "connectionStrings"
             //it can be anything
             var connectionString = Configuration["connectionStrings:libraryDbConnectionString"];
