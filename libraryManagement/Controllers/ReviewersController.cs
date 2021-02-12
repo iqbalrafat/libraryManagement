@@ -137,9 +137,9 @@ namespace libraryManagement.Controllers
         //api/reviewers/reviewerId
         [HttpPut("{reviewerId}")]
         [ProducesResponseType(400)]
-        [ProducesResponseType(424)]
+        [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [ProducesResponseType(201)]
+        [ProducesResponseType(204)]
 
         public IActionResult UpdatedReviewer(int reviewerId,[FromBody]Reviewer reviewerToUpdate)
         {
@@ -159,8 +159,33 @@ namespace libraryManagement.Controllers
             }
             return NoContent();
         }
-              
-           
+        //api/reviewers/reviewerId
+        [HttpDelete("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
+        public IActionResult DeleteReviewer(int reviewerId)
+        {
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+            //creating reviewerToDelete Object 
+            var reviewerToDelete = _reviewerRepository.GetReviewer(reviewerId);
+            var reviewesToDelete = _reviewerRepository.GetReviewesByReviewer(reviewerId);
+            if(!_reviewerRepository.DeleteReviewer(reviewerToDelete))
+            {
+                ModelState.AddModelError("", $"Something went wrong deleteing"+
+                    $"{reviewerToDelete.FirstName}{reviewerToDelete.LastName}");
+                return StatusCode(500, ModelState);
+            }
+            if (!_reviewRepository.DeleteReviews(reviewesToDelete.ToList()))
+            {
+                ModelState.AddModelError("", $"Something went wrong deleteing reviews");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
 
     }
 }
