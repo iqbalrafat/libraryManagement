@@ -11,7 +11,7 @@ namespace libraryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ReviewersController:Controller
+    public class ReviewersController : Controller
     {
         private IReviewerRepository _reviewerRepository;
         private IReviewRepository _reviewRepository;
@@ -23,29 +23,29 @@ namespace libraryManagement.Controllers
         //api/reviewers
         [HttpGet]
         [ProducesResponseType(400)]
-        [ProducesResponseType(200,Type =typeof(IEnumerable<ReviewerDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewerDto>))]
         public IActionResult GetReviewers()
         {
-           var Reviewers = _reviewerRepository.GetReviewers().ToList();
-           if (!ModelState.IsValid)
-               return BadRequest(ModelState);
-                    var ReviewersDto = new List<ReviewerDto>();
-                    foreach(var reviewer in Reviewers)
-                    {
-                        ReviewersDto.Add(new ReviewerDto
-                        {
-                            Id = reviewer.Id,
-                            FirstName = reviewer.FirstName,
-                            LastName = reviewer.LastName
-                        });
-                    }
-               return Ok(ReviewersDto);
+            var Reviewers = _reviewerRepository.GetReviewers().ToList();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var ReviewersDto = new List<ReviewerDto>();
+            foreach (var reviewer in Reviewers)
+            {
+                ReviewersDto.Add(new ReviewerDto
+                {
+                    Id = reviewer.Id,
+                    FirstName = reviewer.FirstName,
+                    LastName = reviewer.LastName
+                });
+            }
+            return Ok(ReviewersDto);
         }
         //api/Reviewers/{ReviewerId}
-        [HttpGet("{ReviewerId}",Name ="GetReviewer")]
+        [HttpGet("{ReviewerId}", Name = "GetReviewer")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(200,Type=typeof(ReviewerDto))]
+        [ProducesResponseType(200, Type = typeof(ReviewerDto))]
         public IActionResult GetReviewer(int ReviewerId)
         {
             if (!_reviewerRepository.ReviewerExists(ReviewerId))
@@ -65,16 +65,16 @@ namespace libraryManagement.Controllers
         [HttpGet("{reviewerId}/reviews")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(200,Type =typeof(IEnumerable<ReviewDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ReviewDto>))]
         public IActionResult GetReviewsByReviewer(int reviewerId)
         {
             if (!_reviewerRepository.ReviewerExists(reviewerId))
                 return NotFound();
             var reviews = _reviewerRepository.GetReviewesByReviewer(reviewerId);
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);           
+                return BadRequest(ModelState);
             var reviewsDto = new List<ReviewDto>();
-            foreach(var review in reviews)
+            foreach (var review in reviews)
             {
                 reviewsDto.Add(new ReviewDto
                 {
@@ -82,7 +82,7 @@ namespace libraryManagement.Controllers
                     Headline = review.Headline,
                     ReviewText = review.ReviewText,
                     Rating = review.Rating
-                });                
+                });
             }
             return Ok(reviewsDto);
         }
@@ -90,19 +90,19 @@ namespace libraryManagement.Controllers
         [HttpGet("{reviewId}/reviewer")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(200,Type =typeof(ReviewerDto))]
+        [ProducesResponseType(200, Type = typeof(ReviewerDto))]
         public IActionResult GetReviewerOfAReview(int reviewId)
         {
             if (!_reviewRepository.ReviewExists(reviewId))
-               return NotFound();
+                return NotFound();
             var reviewer = _reviewerRepository.GetReviewerOfAReview(reviewId);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var reviewerDto = new ReviewerDto
             {
-                Id=reviewer.Id,
-                FirstName=reviewer.FirstName,
-                LastName=reviewer.LastName
+                Id = reviewer.Id,
+                FirstName = reviewer.FirstName,
+                LastName = reviewer.LastName
             };
             return Ok(reviewerDto);
         }
@@ -111,30 +111,56 @@ namespace libraryManagement.Controllers
         [HttpPost]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        [ProducesResponseType(201,Type=typeof(Reviewer))]
+        [ProducesResponseType(201, Type = typeof(Reviewer))]
 
         public IActionResult CreateReviewer([FromBody] Reviewer reviewerToCreate)
         {
             if (reviewerToCreate == null)
                 return BadRequest(ModelState);
 
-            var reviewer = _reviewerRepository.GetReviewers().Where(c => c.FirstName.Trim().ToUpper() == reviewerToCreate.FirstName.Trim().ToUpper()).FirstOrDefault();
-            if(reviewer!=null)
-            {
-                ModelState.AddModelError("", $"Country {reviewerToCreate.FirstName} already exists");
-                return StatusCode(422, ModelState);
-            }
+            //var reviewer = _reviewerRepository.GetReviewers().Where(c => c.FirstName.Trim().ToUpper() == reviewerToCreate.FirstName.Trim().ToUpper()).FirstOrDefault();
+            //if(reviewer!=null)
+            //{
+            //    ModelState.AddModelError("", $"Country {reviewerToCreate.FirstName} already exists");
+            //    return StatusCode(422, ModelState);
+            //}
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            if(!_reviewerRepository.CreateReviewer(reviewerToCreate))
+            if (!_reviewerRepository.CreateReviewer(reviewerToCreate))
             {
-                ModelState.AddModelError("", $"Something went wrong saving"+
+                ModelState.AddModelError("", $"Something went wrong saving" +
                     $"{reviewerToCreate.FirstName}{reviewerToCreate.LastName}");
-                    return StatusCode(500, ModelState);
+                return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetReviewer",new { reviewerId = reviewerToCreate.Id },reviewerToCreate);
+            return CreatedAtRoute("GetReviewer", new { reviewerId = reviewerToCreate.Id }, reviewerToCreate);
         }
+        //api/reviewers/reviewerId
+        [HttpPut("{reviewerId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(424)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(201)]
 
+        public IActionResult UpdatedReviewer(int reviewerId,[FromBody]Reviewer reviewerToUpdate)
+        {
+            if (reviewerToUpdate==null)
+                return BadRequest(ModelState);
+            if (reviewerId != reviewerToUpdate.Id)
+                return BadRequest(ModelState);
+            if (!_reviewerRepository.ReviewerExists(reviewerId))
+                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if (!_reviewerRepository.UpdateReviewer(reviewerToUpdate))
+            {
+                ModelState.AddModelError("", $"something went wromg while update" +
+                    $"{reviewerToUpdate.FirstName}{reviewerToUpdate.LastName}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+              
+           
 
     }
 }
