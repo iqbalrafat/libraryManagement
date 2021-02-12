@@ -177,5 +177,30 @@ namespace libraryManagement.Controllers
             }
             return NoContent();
         }
+        //api/reviews/{reviewId}
+        [HttpDelete("{reviewId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
+        public IActionResult DeleteReview(int reviewId)
+        {
+            if (!_reviewRepository.ReviewExists(reviewId))
+                return NotFound();
+            var reviewToDelete = _reviewRepository.GetReview(reviewId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if(!_reviewRepository.DeleteReview(reviewToDelete))
+            {
+                ModelState.AddModelError("", $"Something wrong while delete review");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+
+
+
+            return Ok();
+        }
+
     }
 }
