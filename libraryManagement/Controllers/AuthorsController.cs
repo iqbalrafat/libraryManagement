@@ -11,7 +11,7 @@ namespace libraryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorsController:Controller
+    public class AuthorsController : Controller
     {
         private IAuthorRepository _authorRepository;
         private IBookRepository _bookRepository;
@@ -25,14 +25,14 @@ namespace libraryManagement.Controllers
         }
         //api/Authors
         [HttpGet]
-        [ProducesResponseType(200,Type =typeof(IEnumerable<AuthorDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<AuthorDto>))]
         public IActionResult GetAuthors()
         {
             var authors = _authorRepository.GetAuthors();
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-           var  authorsDto = new List<AuthorDto>();
-            foreach(var author in authors)
+            var authorsDto = new List<AuthorDto>();
+            foreach (var author in authors)
             {
                 authorsDto.Add(new AuthorDto
                 {
@@ -41,10 +41,10 @@ namespace libraryManagement.Controllers
                     LastName = author.LastName
                 });
             }
-            return Ok (authorsDto);
+            return Ok(authorsDto);
         }
         //api/Authors/{authorId}
-        [HttpGet("{authorId}")]
+        [HttpGet("{authorId}", Name = "GetAuthor")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200, Type = typeof(AuthorDto))]
@@ -107,7 +107,7 @@ namespace libraryManagement.Controllers
                     Id = book.Id,
                     Title = book.Title,
                     Isbn = book.Isbn,
-                    DatePublished=book.DatePublished
+                    DatePublished = book.DatePublished
                 });
             }
             return Ok(booksDto);
@@ -116,8 +116,9 @@ namespace libraryManagement.Controllers
         [HttpPost]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(201,Type=typeof(Author))]
-        public IActionResult CreateAuthor([FromBody]Author authorToCreate)
+        [ProducesResponseType(500)]
+        [ProducesResponseType(201, Type = typeof(Author))]
+        public IActionResult CreateAuthor([FromBody] Author authorToCreate)
         {
             if (authorToCreate == null)
                 return BadRequest(ModelState);
@@ -132,14 +133,42 @@ namespace libraryManagement.Controllers
             authorToCreate.Country = _countryRepository.GetCountry(authorToCreate.Country.Id);
             if (!_authorRepository.CreateAuthor(authorToCreate))
             {
-                ModelState.AddModelError("", $"something went wrong to save"+
+                ModelState.AddModelError("", $"something went wrong to save" +
                     $"{authorToCreate.FirstName}{authorToCreate.LastName}");
                 return StatusCode(500, ModelState);
             }
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            return CreatedAtRoute("GetAuthor", new{ authorId= authorToCreate.Id}, authorToCreate);     
+            return CreatedAtRoute("GetAuthor", new { authorId = authorToCreate.Id }, authorToCreate);
         }
+
+        //api/authors/authorId
+        [HttpPut("{authorId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(201)]
+
+        public IActionResult UpdateAuthor(int authorId, [FromBody] Author authorToUpdate)
+        {
+            if (authorToUpdate == null)
+                return BadRequest(ModelState);
+            if (authorId != authorToUpdate.Id)
+                return BadRequest(ModelState);
+
+            if (!_authorRepository.AuthorExists(authorId))
+                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            if (!_authorRepository.UpdateAuthor(authorToUpdate))
+            {
+                ModelState.AddModelError("", $"something went wromg while update" +
+                    $"{authorToUpdate.FirstName}{authorToUpdate.LastName}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
+
 
      }
 }
