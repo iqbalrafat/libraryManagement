@@ -147,7 +147,7 @@ namespace libraryManagement.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [ProducesResponseType(201)]
+        [ProducesResponseType(204)]
 
         public IActionResult UpdateAuthor(int authorId, [FromBody] Author authorToUpdate)
         {
@@ -157,9 +157,13 @@ namespace libraryManagement.Controllers
                 return BadRequest(ModelState);
 
             if (!_authorRepository.AuthorExists(authorId))
-                return NotFound();
+                ModelState.AddModelError("", "Author does not exist");
+            if (!_countryRepository.CountryExist(authorToUpdate.Country.Id))
+                ModelState.AddModelError("", "Country does not exist");
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return StatusCode(404, ModelState);
+            authorToUpdate.Country = _countryRepository.GetCountry(authorToUpdate.Country.Id);
+
             if (!_authorRepository.UpdateAuthor(authorToUpdate))
             {
                 ModelState.AddModelError("", $"something went wromg while update" +
@@ -169,6 +173,34 @@ namespace libraryManagement.Controllers
             return NoContent();
         }
 
+        //api/authors/authorId
+        [HttpDelete("{authirId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
 
+        public IActionResult DeleteAuthor(int authorId)
+        {
+            if (!_authorRepository.AuthorExists(authorId))
+                return NotFound();
+            var authorToDelete = _authorRepository.GetAuthor(authorId);
+            if (_authorRepository.GetBooksByAuthor(authorId).Count>0)
+            {
+                ModelState.AddModelError("", $"Author {authorToDelete.FirstName}{authorToDelete.LastName}" +
+                    $"because at least one book is associate with author");
+                    return StatusCode(409, ModelState);
+            }
+            if (!ModelState.IsValid)
+                BadRequest(ModelState);
+            if(!_authorRepository.DeleteAuthor(authorToDelete))
+            {
+                ModelState.AddModelError("", $"Something went wrong to deletinng" +
+                    $"{authorToDelete.FirstName} {authorToDelete.LastName}");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }       
      }
 }
