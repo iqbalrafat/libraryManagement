@@ -1,4 +1,5 @@
 ﻿using libraryManagement.DTos;
+using libraryManagement.models;
 using libraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,11 +15,13 @@ namespace libraryManagement.Controllers
     {
         private IAuthorRepository _authorRepository;
         private IBookRepository _bookRepository;
+        private ICountryRepository _countryRepository;
 
-        public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository)
+        public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository, ICountryRepository countryRepository)
         {
             _authorRepository = authorRepository;
             _bookRepository = bookRepository;
+            _countryRepository = countryRepository;
         }
         //api/Authors
         [HttpGet]
@@ -108,6 +111,34 @@ namespace libraryManagement.Controllers
                 });
             }
             return Ok(booksDto);
+        }
+        //CRUD Operation
+        [HttpPost]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(201,Type=typeof(Author))]
+        public IActionResult CreateAuthor([FromBody]Author authorToCreate)
+        {
+            if (authorToCreate == null)
+                return BadRequest(ModelState);
+            //If we look the relationship it is clear that author is linked with country. therefore we need to check
+            //the country exist or not for this first add CountryRepository and then check coutry existence
+
+            if (!_countryRepository.CountryExist(authorToCreate.Country.Id))
+            {
+                ModelState.AddModelError("", $"Country Does not exist");
+                return StatusCode(404, ModelState);
+            }
+            authorToCreate.Country = _countryRepository.GetCountry(authorToCreate.Country.Id);
+            if (!_authorRepository.CreateAuthor(authorToCreate))
+            {
+                ModelState.AddModelError("", $"something went wrong to save"+
+                    $"{authorToCreate.FirstName}{authorToCreate.LastName}");
+                return StatusCode(500, ModelState);
+            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            return CreatedAtRoute("GetAuthor", new{ authorId= authorToCreate.Id}, authorToCreate);     
         }
 
      }
