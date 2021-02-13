@@ -15,5 +15,9 @@ namespace libraryManagement.Services
         bool BookExistsById(int bookId);
         bool BookExistsByIsbn(string bookIsbn);
         bool IsDuplicateIsbn(int bookId, string bookIsbn);
+        bool CreateBook(List<int> authorId, List<int> categoriesId,Book book);
+        bool UpdateBook(List<int> authorId, List<int> categoriesId, Book book);
+        bool DeleteBook(Book book);
+        bool Save();
     }
 }

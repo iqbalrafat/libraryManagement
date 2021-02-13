@@ -24,6 +24,17 @@ namespace libraryManagement.Services
             return _bookContext.Books.Any(b => b.Isbn==bookIsbn);
         }
 
+        public bool CreateBook(List<int> authorId, List<int> categoriesId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DeleteBook(Book book)
+        {
+            _bookContext.Remove(book);
+            return Save();
+        }
+
         public Book GetBookById(int bookId)
         {
             return _bookContext.Books.Where(b => b.Id == bookId).FirstOrDefault();
@@ -51,6 +62,17 @@ namespace libraryManagement.Services
         {
             var book= _bookContext.Books.Where(b => b.Isbn.Trim().ToUpper() == bookIsbn.Trim().ToUpper() && b.Id == bookId).FirstOrDefault();
             return book == null ? false : true;
+        }
+
+        public bool Save()
+        {
+            var saved = _bookContext.SaveChanges();
+            return saved >= 0 ? true : false;
+        }
+
+        public bool UpdateBook(List<int> authorId, List<int> categoriesId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
