@@ -1,4 +1,5 @@
 ﻿using libraryManagement.DTos;
+using libraryManagement.models;
 using libraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,11 +13,19 @@ namespace libraryManagement.Controllers
     [ApiController]
     public class BooksController: Controller
     {
-
+        //we add the category, author and review repoitories as book has relationship with them. To delete book
+        //we need to delet the relation items too.
         private IBookRepository _bookRepository;
-        public BooksController(IBookRepository bookRepository)
+        private IAuthorRepository _authorRepository;
+        private ICategoryRepository _categoryRepository;
+        private IReviewRepository _reviewRepository;
+        public BooksController(IBookRepository bookRepository, IAuthorRepository authorRepository, ICategoryRepository categoryRepository,
+            IReviewRepository reviewRepository)
         {
             _bookRepository = bookRepository;
+            _authorRepository = authorRepository;
+            _categoryRepository = categoryRepository;
+            _reviewRepository = reviewRepository;
         }
 
         [HttpGet]
@@ -75,6 +84,48 @@ namespace libraryManagement.Controllers
                 return BadRequest(ModelState);
             return Ok(rating);
         }
+
+        //Perform all validation before performing delete books
+        private StatusCodeResult ValidateBook(List<int> authId, List<int> catId,Book book)
+        {
+            //valiadate if book is empty or autor or category are missing
+            if(book==null ||authId.Count<=0 || catId.Count <= 0)
+            {
+                ModelState.AddModelError("", "Missing book, author or category");
+                return BadRequest();
+            }
+            //check the duplicate ISBN
+            if (_bookRepository.IsDuplicateIsbn(book.Id, book.Isbn))
+            {
+                ModelState.AddModelError("", "Duplicate ISBN");
+                    return StatusCode(422);
+            }
+            //check the author exist. if not then through error
+            foreach(var id in authId)
+            {
+                if (!_authorRepository.AuthorExists(id))
+                {
+                    ModelState.AddModelError("", "Author not found");
+                        return StatusCode(404);
+                }
+            }
+            //check the existence of Category
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
 
