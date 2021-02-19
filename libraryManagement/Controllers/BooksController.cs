@@ -49,11 +49,11 @@ namespace libraryManagement.Controllers
             return Ok(booksDto);
         }
         //api/bOOKS/{bookId}
-        [HttpGet("{bookId}")]
+        [HttpGet("{bookId}",Name ="GetBook")]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(200, Type = typeof(BookDto))]
-        public IActionResult GetBookById(int bookId)
+        public IActionResult GetBook(int bookId)
         {
             if (!_bookRepository.BookExistsById(bookId))
                 return NotFound();
@@ -83,6 +83,32 @@ namespace libraryManagement.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             return Ok(rating);
+        }
+
+        // Creating Post API to create a book we need to use author ID and CatageryID . The should be the same as use as parameter
+        //api/books?authId=1&authId=2&catId=1&catId=2
+        [HttpPost]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(424)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(200, Type = typeof(Book))]
+
+        //we need to get the List of author and category. for this we use [FromQuery] that take our query and return the list
+
+        public IActionResult CreateBook([FromQuery]List<int>authId,[FromQuery]List<int>catId,[FromBody]Book bookToCreate)
+        {
+            //first valiadte. for this call the validation function ValidateBook
+            var statusCode = ValidateBook(authId, catId, bookToCreate);
+            if (!ModelState.IsValid)
+                return StatusCode(statusCode.StatusCode);
+            if (!_bookRepository.CreateBook(authId, catId, bookToCreate))
+            {
+                ModelState.AddModelError("","something went wrong when creating the book ${bookToCreate.Title}");
+                return StatusCode(500, ModelState);
+            }
+
+            return CreatedAtAction("GetBook", new { bookId = bookToCreate.Id }, bookToCreate);
         }
 
         //Perform all validation before performing delete books
