@@ -110,7 +110,6 @@ namespace libraryManagement.Controllers
 
             return CreatedAtAction("GetBook", new { bookId = bookToCreate.Id }, bookToCreate);
         }
-
         //api/books/bookId?authId=1&authId=2&catId=1&catId=2
         [HttpPut("{bookId}")]
         [ProducesResponseType(400)]
@@ -123,6 +122,8 @@ namespace libraryManagement.Controllers
             var statusCode = ValidateBook (authId, CatId, bookToUpdate);
             if (bookId != bookToUpdate.Id)
                 return BadRequest();
+            if (!_bookRepository.BookExistsById(bookId))
+                return NotFound();
             if (!ModelState.IsValid)
                 return StatusCode(statusCode.StatusCode);
             if (!_bookRepository.UpdateBook(authId, CatId, bookToUpdate))
@@ -130,13 +131,33 @@ namespace libraryManagement.Controllers
                 ModelState.AddModelError("", "something went wrong while updateBook ${ bookToUpdate.Title}");
                 return StatusCode(500, ModelState);
             }
-
-
-
             return NoContent();
-
         }
-
+        //api/books/bookId
+        [HttpDelete("{bookId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(424)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204)]
+        public IActionResult DeleteBook(int bookId)
+        {
+            if (!_bookRepository.BookExistsById(bookId))
+                return NotFound();
+            var reviewsToDelete = _reviewRepository.GetReviewesOfABook(bookId);
+            var bookToDelete = _bookRepository.GetBookById(bookId);
+            if(!_reviewRepository.DeleteReviews(reviewsToDelete.ToList()))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting Reviews");
+                return StatusCode(500, ModelState);
+            }
+            if (!_bookRepository.DeleteBook(bookToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong while deleting book");
+                return StatusCode(500, ModelState);
+            }
+            return NoContent();
+        }
         //Perform all validation before performing delete books
         private StatusCodeResult ValidateBook(List<int> authId, List<int> catId,Book book)
         {
