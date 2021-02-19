@@ -110,22 +110,23 @@ namespace libraryManagement.Controllers
                 }
             }
             //check the existence of Category
+            foreach(var id in catId)
+            {
+                if (!_categoryRepository.CategoryExists(id))
+                {
+                    ModelState.AddModelError("", "Category does not found");
+                    return StatusCode(404);
+                }
+            }
+            
+            if (!ModelState.IsValid)
+            {
+                ModelState.AddModelError("", "Critical Error");
+                return BadRequest();
+            }
 
-
-
+            return NoContent();
         }
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
 
