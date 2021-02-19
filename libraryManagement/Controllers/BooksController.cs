@@ -92,7 +92,7 @@ namespace libraryManagement.Controllers
         [ProducesResponseType(424)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [ProducesResponseType(200, Type = typeof(Book))]
+        [ProducesResponseType(201, Type = typeof(Book))]
 
         //we need to get the List of author and category. for this we use [FromQuery] that take our query and return the list
 
@@ -109,6 +109,32 @@ namespace libraryManagement.Controllers
             }
 
             return CreatedAtAction("GetBook", new { bookId = bookToCreate.Id }, bookToCreate);
+        }
+
+        //api/books/bookId?authId=1&authId=2&catId=1&catId=2
+        [HttpPut("{bookId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(424)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        [ProducesResponseType(204, Type = typeof(Book))]
+        public IActionResult UpdateBook(int bookId,[FromQuery]List<int>authId,[FromQuery]List<int>CatId,[FromBody]Book bookToUpdate)
+        {
+            var statusCode = ValidateBook (authId, CatId, bookToUpdate);
+            if (bookId != bookToUpdate.Id)
+                return BadRequest();
+            if (!ModelState.IsValid)
+                return StatusCode(statusCode.StatusCode);
+            if (!_bookRepository.UpdateBook(authId, CatId, bookToUpdate))
+            {
+                ModelState.AddModelError("", "something went wrong while updateBook ${ bookToUpdate.Title}");
+                return StatusCode(500, ModelState);
+            }
+
+
+
+            return NoContent();
+
         }
 
         //Perform all validation before performing delete books
@@ -150,7 +176,6 @@ namespace libraryManagement.Controllers
                 ModelState.AddModelError("", "Critical Error");
                 return BadRequest();
             }
-
             return NoContent();
         }
     }
