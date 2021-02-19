@@ -93,7 +93,36 @@ namespace libraryManagement.Services
         }
         public bool UpdateBook(List<int> authorId, List<int> categoriesId, Book book)
         {
-            throw new NotImplementedException();
+            //find the author and catgeories list
+
+            var authors = _bookContext.Authors.Where(a => authorId.Contains(a.Id)).ToList();
+            var categories = _bookContext.Categories.Where(c => categoriesId.Contains(c.Id)).ToList();
+            
+            var bookAuthorsToDelete = _bookContext.BookAuthors.Where(b => b.BookId == book.Id);
+            var bookCategoriesToDelete =_bookContext.BookCategories.Where(b=>b.BookId==book.Id);
+
+            _bookContext.RemoveRange(bookAuthorsToDelete);
+            _bookContext.RemoveRange(bookCategoriesToDelete);
+
+            foreach (var author in authors)
+            {
+                var bookAuthor = new BookAuthor()
+                {
+                    Author = author,
+                    Book = book
+                };
+                _bookContext.Add(bookAuthor);
+            }
+            foreach (var category in categories)
+            {
+                var bookCategory = new BookCategory()
+                {
+                    Book = book,
+                    Category = category
+                };
+                _bookContext.Update(bookCategory);
+            }
+            return Save();
         }
     }
 }
