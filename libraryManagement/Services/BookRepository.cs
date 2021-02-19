@@ -23,10 +23,32 @@ namespace libraryManagement.Services
         {
             return _bookContext.Books.Any(b => b.Isbn==bookIsbn);
         }
-
-        public bool CreateBook(List<int> authorId, List<int> categoriesId)
+        public bool CreateBook(List<int> authorId, List<int> categoriesId, Book book)
         {
-            throw new NotImplementedException();
+            //find the author and catgeories list
+
+            var authors = _bookContext.Authors.Where(a => authorId.Contains(a.Id)).ToList();
+            var categories = _bookContext.Categories.Where(c => categoriesId.Contains(c.Id)).ToList();
+            //now loop through authors and categories list and create the list of the bookauthor and bookcategorynand finaly save them
+            foreach(var author in authors)
+            {
+                var bookAuthor = new BookAuthor()
+                {
+                    Author = author,
+                    Book = book
+                };
+                _bookContext.Add(bookAuthor);
+            }
+            foreach(var category in categories)
+            {
+                var bookCategory = new BookCategory()
+                {
+                    Book = book,
+                    Category = category
+                };
+                _bookContext.Add(bookCategory);
+            }
+            return Save();
         }
 
         public bool DeleteBook(Book book)
@@ -69,8 +91,7 @@ namespace libraryManagement.Services
             var saved = _bookContext.SaveChanges();
             return saved >= 0 ? true : false;
         }
-
-        public bool UpdateBook(List<int> authorId, List<int> categoriesId)
+        public bool UpdateBook(List<int> authorId, List<int> categoriesId, Book book)
         {
             throw new NotImplementedException();
         }
